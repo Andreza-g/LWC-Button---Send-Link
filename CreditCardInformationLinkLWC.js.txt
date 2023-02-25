@@ -1,0 +1,69 @@
+import { LightningElement, wire, api, track } from "lwc";
+import getProfileName from '@salesforce/apex/CreditCardInformationController.linkValidations';
+import { getRecord, getFieldValue } from 'lightning/uiRecordApi';
+import PRODUTO_EMPRESA_CODIGOEMPRESA_FIELD from '@salesforce/schema/Quote.Produto__r.Empresa__r.CodigoEmpresa__c';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
+const FIELDS = ['Quote.Status',PRODUTO_EMPRESA_CODIGOEMPRESA_FIELD];
+
+export default class CreditCardInformationLinkLWC extends LightningElement {
+    @api recordId;
+    @track showLink = false;
+    quote;
+    status;
+    codigoEmpresa;    
+    currentProfileName; 
+    
+    @wire(getProfileName)
+    wiredProfileName({ error, data }) {
+        if (error) {
+            let message = 'Unknown error';
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error loading profile name',
+                    message,
+                    variant: 'error',
+                }),
+            );
+        } else if (data) {
+            this.currentProfileName = data;
+        }
+    }
+    
+    @wire(getRecord, { recordId: '$recordId', fields: FIELDS })
+    wiredRecord({ error, data }) {
+        if (error) {
+            let message = 'Unknown error';
+            if (Array.isArray(error.body)) {
+                message = error.body.map(e => e.message).join(', ');
+            } else if (typeof error.body.message === 'string') {
+                message = error.body.message;
+            }
+            this.dispatchEvent(
+                new ShowToastEvent({
+                    title: 'Error loading quote',
+                    message,
+                    variant: 'error',
+                }),
+            );
+        } else if (data) {
+            this.quote = data;
+            this.status = this.quote.fields.Status.value;
+            this.codigoEmpresa = getFieldValue(data, PRODUTO_EMPRESA_CODIGOEMPRESA_FIELD );
+
+            if(this.currentProfileName == 'Emissão' || this.currentProfileName == 'Atendimento' || this.currentProfileName == 'Administrador Porto' || this.currentProfileName == 'Administrador do sistema'){
+                if(this.status == 'Em criação' || this.status == 'Aguardando análise' || this.status == 'Em análise' || this.status == 'Em aprovação' || this.status == 'Disponível para contratação' && this.codigoEmpresa == '14'){               
+                    this.showLink = true;
+                }else{
+                    this.showLink = false; 
+                }
+            }else{
+                alert('Perfil sem permissão para acessar o link.');
+            }
+        }
+    }    
+}
+
+
+
+
