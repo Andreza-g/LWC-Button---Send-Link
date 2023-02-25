@@ -1,10 +1,3 @@
-/****************************
-@description  Classe que contém a regra para reenvio de link de solicitação de informações do cartão de crédito na proposta.
-@author Andreza R. e Luiz N. - SYS4B
-@date 07/02/2023
-@Classe criada por conta da história RVI-223        
-****************************/
-
 public class CreditCardInformationController {
 
     @AuraEnabled(cacheable=true)

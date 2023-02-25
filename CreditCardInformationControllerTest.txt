@@ -1,10 +1,3 @@
-/****************************
-@description  Classe de teste para a classe CreditCardInformationController
-@author Andreza R. e Luiz N. - SYS4B
-@date 12/02/2023
-@Classe de teste criada por conta da história RVI-223        
-****************************/
-
 @isTest
 public class CreditCardInformationControllerTest {
 
